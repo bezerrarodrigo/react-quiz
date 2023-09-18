@@ -10,6 +10,8 @@ const initialState = {
   questions: [],
   status: 'loading', //loading, error, ready,active,finished
   questionIndex: 0,
+  newAnswer: null,
+  points: 0,
 };
 
 function reducer(currentState, action) {
@@ -20,6 +22,14 @@ function reducer(currentState, action) {
       return {...currentState, status: 'error'};
     case 'startGame':
       return {...currentState, status: 'active'};
+    case 'newAnswer':
+      const question = currentState.questions.at(currentState.questionIndex);
+      return {
+        ...currentState,
+        newAnswer: action.payload,
+        points: action.payload === question.correctOption ? currentState.points + question.points :
+          currentState.points,
+      };
     default:
       throw new Error('Action unknown!');
   }
@@ -30,7 +40,7 @@ export default function App() {
 
   //states
   const [state, dispatch] = useReducer(reducer, initialState);
-  const {questions, status, questionIndex} = state;
+  const {questions, status, questionIndex, newAnswer} = state;
 
   //derived state
   const numQuestions = questions.length;
@@ -57,7 +67,8 @@ export default function App() {
         {status === 'error' && <Error/>}
         {status === 'ready' &&
           <StartScreen numQuestions={numQuestions} dispatch={dispatch}/>}
-        {status === 'active' && <Question question={questions[questionIndex]}/>}
+        {status === 'active' &&
+          <Question question={questions[questionIndex]} dispatch={dispatch} answer={newAnswer}/>}
       </Main>
     </div>
   );
