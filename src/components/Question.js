@@ -1,7 +1,13 @@
-export function Question() {
+import {Options} from "./Options";
+
+export function Question({question}) {
+
+  console.log(question);
+
   return (
     <div>
-      <p>Question</p>
+      <h4>{question.question}</h4>
+      <Options question={question}/>
     </div>
   );
 }
