@@ -1,4 +1,4 @@
-export function FinishScreen({points, maxPoints, highscore}) {
+export function FinishScreen({points, maxPoints, highscore, dispatch}) {
 
   //derived states
   const percentage = (points / maxPoints) * 100;
@@ -15,6 +15,8 @@ export function FinishScreen({points, maxPoints, highscore}) {
         of {maxPoints} ({Math.ceil(
           percentage)}%)</p>
       <p className="highscore">(High-score: {highscore} points )</p>
+      <button className="btn btn-ui" onClick={() => dispatch({type: 'restart'})}>Restart Quiz
+      </button>
     </>
   );
 }
