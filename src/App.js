@@ -6,6 +6,7 @@ import Error from "./components/Error";
 import {StartScreen} from "./components/StartScreen";
 import {Question} from "./components/Question";
 import {NextButton} from "./components/NextButton";
+import {Progress} from "./components/Progress";
 
 const initialState = {
   questions: [],
@@ -47,10 +48,12 @@ export default function App() {
 
   //states
   const [state, dispatch] = useReducer(reducer, initialState);
-  const {questions, status, questionIndex, newAnswer} = state;
+  const {questions, status, questionIndex, newAnswer, points} = state;
 
   //derived state
   const numQuestions = questions.length;
+  const maxPoints = questions.reduce(
+    (previousValue, currentValue) => previousValue + currentValue.points, 0);
 
 
   useEffect(() => {
@@ -75,8 +78,12 @@ export default function App() {
         {status === 'ready' &&
           <StartScreen numQuestions={numQuestions} dispatch={dispatch}/>}
         {status === 'active' &&
-          <Question question={questions[questionIndex]} dispatch={dispatch} answer={newAnswer}/>}
-        <NextButton dispatch={dispatch} answer={newAnswer}/>
+          <>
+            <Progress index={questionIndex} totalQuestions={numQuestions} points={points}
+                      totalPoints={maxPoints} answer={newAnswer}/>
+            <Question question={questions[questionIndex]} dispatch={dispatch} answer={newAnswer}/>
+            <NextButton dispatch={dispatch} answer={newAnswer}/>
+          </>}
       </Main>
     </div>
   );
