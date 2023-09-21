@@ -8,6 +8,8 @@ import {Question} from "./components/Question";
 import {NextButton} from "./components/NextButton";
 import {Progress} from "./components/Progress";
 import {FinishScreen} from "./components/FinishScreen";
+import {Timer} from "./components/Timer";
+import {Footer} from "./components/Footer";
 
 const initialState = {
   questions: [],
@@ -16,7 +18,10 @@ const initialState = {
   newAnswer: null,
   points: 0,
   highscore: 0,
+  secondsRemaining: null,
 };
+
+const QUESTIONS_PER_SECOND = 10;
 
 function reducer(state, action) {
   switch (action.type) {
@@ -25,7 +30,11 @@ function reducer(state, action) {
     case 'dataFailed':
       return {...state, status: 'error'};
     case 'startGame':
-      return {...state, status: 'active'};
+      return {
+        ...state,
+        status: 'active',
+        secondsRemaining: state.questions.length * QUESTIONS_PER_SECOND,
+      };
     case 'newAnswer':
       const question = state.questions.at(state.questionIndex);
       return {
@@ -48,7 +57,20 @@ function reducer(state, action) {
           state.highscore,
       };
     case 'restart':
-      return {...state, status: 'ready', questionIndex: 0, points: 0, newAnswer: null};
+      return {
+        ...state,
+        status: 'ready',
+        questionIndex: 0,
+        points: 0,
+        newAnswer: null,
+        secondsRemaining: 0,
+      };
+    case 'tick':
+      return {
+        ...state,
+        secondsRemaining: state.secondsRemaining - 1,
+        status: state.secondsRemaining === 0 ? 'finished' : state.status,
+      };
     default:
       throw new Error('Action unknown!');
   }
@@ -59,7 +81,7 @@ export default function App() {
 
   //states
   const [state, dispatch] = useReducer(reducer, initialState);
-  const {questions, status, questionIndex, newAnswer, points, highscore} = state;
+  const {questions, status, questionIndex, newAnswer, points, highscore, secondsRemaining} = state;
 
   //derived state
   const numQuestions = questions.length;
@@ -93,8 +115,11 @@ export default function App() {
             <Progress index={questionIndex} totalQuestions={numQuestions} points={points}
                       totalPoints={maxPoints} answer={newAnswer}/>
             <Question question={questions[questionIndex]} dispatch={dispatch} answer={newAnswer}/>
-            <NextButton dispatch={dispatch} answer={newAnswer} index={questionIndex}
-                        numQuestions={numQuestions}/>
+            <Footer>
+              <Timer seconds={secondsRemaining} dispatch={dispatch}/>
+              <NextButton dispatch={dispatch} answer={newAnswer} index={questionIndex}
+                          numQuestions={numQuestions}/>
+            </Footer>
           </>}
         {status === 'finished' &&
           <FinishScreen points={points} maxPoints={maxPoints} highscore={highscore}
