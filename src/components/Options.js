@@ -1,5 +1,10 @@
-export function Options({question, dispatch, answer}) {
-  
+import {useQuiz} from "../context/QuizContext";
+
+export function Options() {
+
+  const {questions, dispatch, newAnswer: answer, questionIndex} = useQuiz();
+  const question = questions[questionIndex];
+
   const hasAnswer = answer !== null;
 
   return (
